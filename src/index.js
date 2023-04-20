@@ -1,0 +1,180 @@
+import SearchFoto from './fetchSearch';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+Notify.init({
+  position: 'right-top',
+  cssAnimationStyle: 'fade',
+  fontSize: '20px',
+  width: '450px',
+  closeButton: false,
+});
+const parentGallery = document.querySelector('.gallery');
+
+let gallery = new SimpleLightbox('.gallery a');
+
+const refs = {
+  form: document.querySelector('.search-form'),
+  input: document.querySelector('.search-form input'),
+};
+
+refs.form.addEventListener('submit', onFormSubmit);
+
+const SearchImeg = new SearchFoto();
+
+function onFormSubmit(event) {
+  event.preventDefault();
+
+  SearchImeg.query = refs.input.value;
+
+  SearchImeg.resetLoadedHits();
+
+  SearchImeg.resetPage();
+
+  clearConteinerImeg();
+
+  if (!SearchImeg.query) {
+    return;
+  }
+  SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
+    if (!hits.length) {
+      notifyInfoError();
+      return;
+    }
+    if (totalHits) {
+      notifySuccess(totalHits);
+      SearchImeg.incrementLoadedHits(hits);
+      createGalleryMarkup(hits);
+
+      gallery.refresh();
+    }
+  });
+}
+function updateData() {
+  SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
+    SearchImeg.incrementLoadedHits(hits);
+
+    const allpages = Number(hits.length) * Math.ceil(SearchImeg.page);
+
+    if (allpages >= totalHits) {
+      notifyInfo();
+    }
+
+    createGalleryMarkup(hits);
+
+    gallery.refresh();
+  });
+}
+
+function createGalleryMarkup(images) {
+  const markup = images
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `
+            <div class="photo-card">
+            <a href="${largeImageURL}">
+            <img
+            class="photo-card__img"
+            src="${webformatURL}" 
+            alt="${tags}" 
+            loading="lazy" 
+            width="320"
+            height="212"
+            />
+            </a>
+            <div class="info">
+            <p class="info-item">
+            <b>Likes</b>
+            <span>${likes}</span>
+            </p>
+            <p class="info-item">
+            <b>Views</b>
+            <span>${views}</span>
+            </p>
+            <p class="info-item">
+            <b>Comments</b>
+            <span>${comments}</span>
+            </p>
+            <p class="info-item">
+            <b>Downloads</b>
+           <span>${downloads}</span>
+           </p>
+           </div>
+           </div>
+           `;
+      }
+    )
+    .join('');
+
+  parentGallery.insertAdjacentHTML('beforeend', markup);
+  gallery.refresh();
+}
+
+function clearConteinerImeg() {
+  parentGallery.innerHTML = '';
+}
+
+function checkPosition() {
+  // Нам потребуется знать высоту документа и высоту экрана:
+  const height = document.body.offsetHeight;
+  const screenHeight = window.innerHeight;
+
+  // Они могут отличаться: если на странице много контента,
+  // высота документа будет больше высоты экрана (отсюда и скролл).
+
+  // Записываем, сколько пикселей пользователь уже проскроллил:
+  const scrolled = window.scrollY;
+
+  // Обозначим порог, по приближении к которому
+  // будем вызывать какое-то действие.
+  // В нашем случае — четверть экрана до конца страницы:
+  const threshold = height - screenHeight / 4;
+
+  // Отслеживаем, где находится низ экрана относительно страницы:
+  const position = scrolled + screenHeight;
+
+  if (position >= threshold) {
+    // Если мы пересекли полосу-порог, вызываем нужное действие.
+    updateData();
+  }
+}
+
+function throttle(callee, timeout) {
+  let timer = null;
+
+  return function perform(...args) {
+    if (timer) return;
+
+    timer = setTimeout(() => {
+      callee(...args);
+
+      clearTimeout(timer);
+      timer = null;
+    }, timeout);
+  };
+}
+(() => {
+  window.addEventListener('scroll', throttle(checkPosition, 250));
+  window.addEventListener('resize', throttle(checkPosition, 250));
+})();
+
+function notifySuccess(totalHits) {
+  Notify.success(`Hooray! We found ${totalHits} images.`);
+}
+function notifyInfo() {
+  Notify.info("We're sorry, but you've reached the end of search results.");
+}
+
+function notifyInfoError() {
+  Notify.failure(
+    'Sorry, there are no images matching your search query. Please try again.'
+  );
+}

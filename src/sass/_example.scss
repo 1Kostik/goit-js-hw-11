@@ -1,28 +1,123 @@
-.example {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.5;
-  background-color: #fff;
-  color: #2f2f37;
-  max-width: 960px;
-  padding: 16px;
+:root {
+  --timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-duration: 250ms;
+}
+body {
+  background: linear-gradient(
+      0deg,
+      hsl(138deg 98% 49%) 0%,
+      hsl(152deg 100% 48%) 13%,
+      hsl(164deg 100% 47%) 28%,
+      hsl(175deg 100% 45%) 43%,
+      hsl(186deg 100% 48%) 56%,
+      hsl(190deg 100% 50%) 68%,
+      hsl(193deg 100% 50%) 77%,
+      hsl(196deg 100% 50%) 86%,
+      hsl(200deg 100% 50%) 93%,
+      hsl(219deg 94% 69%) 100%
+    )
+    fixed;
+}
+.search-form {
+  top: 0px;
+  position: fixed;
+  z-index: 100;
+
+  width: 100%;
+  height: 60px;
+
+  background: linear-gradient(
+      116deg,
+      #02f74c 0%,
+      #00f583 13%,
+      #00f0b0 28%,
+      #00bae6 43%
+    )
+    fixed;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 20px;
+  display: flex;
+  box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.3);
+}
+.load-more {
+  visibility: hidden;
+  border-radius: 5px;
+  padding: 10px;
+  width: 120px;
+  height: 40px;
+  color: #000;
+  background-color: aliceblue;
+  justify-content: center;
+  margin: auto;
+  display: flex;
+}
+.gallery {
+  margin-top: 65px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 10px;
+  display: flex;
 }
 
-.example code {
-  font-family: monospace;
-  font-size: 16px;
-  font-weight: 700;
-  background-color: #ff6b0a;
-  color: #fff;
-  padding: 2px 6px;
-  border-radius: 2px;
+.gallery__item {
+  position: relative;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
 }
 
-.example .background {
-  height: 240px;
-  // ❗️❗️❗️ The path to images from a SASS file
-  // is always the same as from the css folder.
-  background-image: url('../images/logo.png');
-  background-size: cover;
-  background-position: center;
+.gallery__image:hover {
+  transform: scale(1.03);
+}
+
+.gallery__image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform var(--animation-duration) var(--timing-function);
+}
+
+.gallery__link {
+  display: block;
+  text-decoration: none;
+  height: 100%;
+}
+
+.gallery__link:hover {
+  cursor: zoom-in;
+}
+.info {
+  text-align: center;
+  color: #464646;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  font-size: 12px;
+  display: flex;
+}
+.photo-card {
+  background-color: rgba(255, 255, 255, 0.4);
+  border-radius: 5px;
+  transition: box-shadow 0.35s ease-in-out;
+  overflow: hidden;
+}
+.photo-card a:focus,
+a:hover .photo-card__img {
+  transform: scale(1.05);
+  filter: grayscale(0%);
+}
+.photo-card__img {
+  filter: grayscale(50%);
+  object-fit: cover;
+  transition: transform 350ms ease-in-out, filter 350ms ease-in-out;
+}
+
+.info-item {
+  flex-direction: column;
+  display: flex;
 }
