@@ -13,13 +13,21 @@ export default class SearchFoto {
 
   async fetchSearch() {
     const parametrs = new URLSearchParams({
+
       key: APIKEY,
+
       image_type: 'photo',
+
       q: this.searchQuery,
+
       safesearch: true,
+
       orientation: 'horizontal',
+
       per_page: 40,
+
       page: this.page,
+      
     });
 
     const url = `${BASE_URL}?${parametrs}`;
