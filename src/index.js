@@ -45,24 +45,28 @@ function onFormSubmit(event) {
       notifySuccess(totalHits);
       SearchImeg.incrementLoadedHits(hits);
       createGalleryMarkup(hits);
-
+      addScroll();
       gallery.refresh();
+    
     }
   });
 }
 function updateData() {
+
   SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
-    SearchImeg.incrementLoadedHits(hits);
-
-    const allpages = Number(hits.length) * Math.ceil(SearchImeg.page);
-
-    if (allpages >= totalHits) {
+    
+    SearchImeg.incrementLoadedHits(hits);    
+    
+    
+    if (SearchImeg.loadedHits >= totalHits) {
       notifyInfo();
+      removeScroll();
+      return;
     }
-
     createGalleryMarkup(hits);
 
     gallery.refresh();
+
   });
 }
 
@@ -161,11 +165,14 @@ function throttle(callee, timeout) {
     }, timeout);
   };
 }
-(() => {
+function addScroll()  {
   window.addEventListener('scroll', throttle(checkPosition, 250));
   window.addEventListener('resize', throttle(checkPosition, 250));
-})();
-
+};
+function removeScroll() {
+  window.removeEventListener('scroll', checkPosition);
+   window.removeEventListener('resize', checkPosition);
+}
 function notifySuccess(totalHits) {
   Notify.success(`Hooray! We found ${totalHits} images.`);
 }
