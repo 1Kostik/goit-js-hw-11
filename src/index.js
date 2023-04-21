@@ -17,7 +17,7 @@ const refs = {
   form: document.querySelector('.search-form'),
   input: document.querySelector('.search-form input'),
 };
-
+let allContentLoaded = false;
 refs.form.addEventListener('submit', onFormSubmit);
 
 const SearchImeg = new SearchFoto();
@@ -46,6 +46,7 @@ function onFormSubmit(event) {
       SearchImeg.incrementLoadedHits(hits);
       createGalleryMarkup(hits);
       addScroll();
+      allContentLoaded = false;
       gallery.refresh();
     
     }
@@ -53,21 +54,21 @@ function onFormSubmit(event) {
 }
 function updateData() {
 
-  SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
-    
-    SearchImeg.incrementLoadedHits(hits);    
-    
-    
-    if (SearchImeg.loadedHits >= totalHits) {
-      notifyInfo();
-      removeScroll();
-      return;
-    }
-    createGalleryMarkup(hits);
+  SearchImeg.fetchSearch()
+    .then(({ hits, totalHits }) => {
+      SearchImeg.incrementLoadedHits(hits);
 
-    gallery.refresh();
+      if (SearchImeg.loadedHits >= totalHits) {
+        allContentLoaded = true;
+        notifyInfo();
+        removeScroll();
+        return;
+      }
+      createGalleryMarkup(hits);
 
-  });
+      gallery.refresh();
+    });
+    // .catch(notifyInfoError());    
 }
 
 function createGalleryMarkup(images) {
@@ -145,7 +146,7 @@ function checkPosition() {
   // Отслеживаем, где находится низ экрана относительно страницы:
   const position = scrolled + screenHeight;
 
-  if (position >= threshold) {
+  if (!allContentLoaded && position >= threshold) {
     // Если мы пересекли полосу-порог, вызываем нужное действие.
     updateData();
   }
@@ -165,9 +166,10 @@ function throttle(callee, timeout) {
     }, timeout);
   };
 }
+
 function addScroll()  {
-  window.addEventListener('scroll', throttle(checkPosition, 250));
-  window.addEventListener('resize', throttle(checkPosition, 250));
+  window.addEventListener('scroll', throttle(checkPosition, 350));
+  window.addEventListener('resize', throttle(checkPosition, 350));
 };
 function removeScroll() {
   window.removeEventListener('scroll', checkPosition);
