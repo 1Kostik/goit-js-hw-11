@@ -1,3 +1,4 @@
+'use strict';
 import SearchFoto from './fetchSearch';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -48,27 +49,25 @@ function onFormSubmit(event) {
       addScroll();
       allContentLoaded = false;
       gallery.refresh();
-    
     }
   });
 }
 function updateData() {
+  SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
+    SearchImeg.incrementLoadedHits(hits);
+    
+    createGalleryMarkup(hits);
 
-  SearchImeg.fetchSearch()
-    .then(({ hits, totalHits }) => {
-      SearchImeg.incrementLoadedHits(hits);
-
-      if (SearchImeg.loadedHits >= totalHits) {
-        allContentLoaded = true;
-        notifyInfo();
-        removeScroll();
-        return;
-      }
-      createGalleryMarkup(hits);
-
-      gallery.refresh();
-    });
-    // .catch(notifyInfoError());    
+    gallery.refresh();
+    
+    if (totalHits <= SearchImeg.loadedHits) {
+      allContentLoaded = true;
+      notifyInfo();
+      removeScroll();
+      return;
+    }
+  });
+ 
 }
 
 function createGalleryMarkup(images) {
@@ -167,13 +166,13 @@ function throttle(callee, timeout) {
   };
 }
 
-function addScroll()  {
+function addScroll() {
   window.addEventListener('scroll', throttle(checkPosition, 350));
   window.addEventListener('resize', throttle(checkPosition, 350));
-};
+}
 function removeScroll() {
   window.removeEventListener('scroll', checkPosition);
-   window.removeEventListener('resize', checkPosition);
+  window.removeEventListener('resize', checkPosition);
 }
 function notifySuccess(totalHits) {
   Notify.success(`Hooray! We found ${totalHits} images.`);
