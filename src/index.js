@@ -25,15 +25,16 @@ const SearchImeg = new SearchFoto();
 
 function onFormSubmit(event) {
   event.preventDefault();
+  gallery.refresh();
 
-  SearchImeg.query = refs.input.value;
-
+  
   SearchImeg.resetLoadedHits();
-
+  
   SearchImeg.resetPage();
-
+  
   clearConteinerImeg();
-
+  
+  SearchImeg.query = refs.input.value.trim();
   if (!SearchImeg.query) {
     return;
   }
@@ -42,32 +43,45 @@ function onFormSubmit(event) {
       notifyInfoError();
       return;
     }
-    if (totalHits) {
-      notifySuccess(totalHits);
-      SearchImeg.incrementLoadedHits(hits);
-      createGalleryMarkup(hits);
-      addScroll();
-      allContentLoaded = false;
-      gallery.refresh();
-    }
+
+    notifySuccess(totalHits);
+
+    SearchImeg.incrementLoadedHits(hits);
+
+    createGalleryMarkup(hits);
+
+    addScroll();
+
+    allContentLoaded = false;
+
+    gallery.refresh();
   });
 }
 function updateData() {
+
+  
   SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
+
+    
     SearchImeg.incrementLoadedHits(hits);
     
     createGalleryMarkup(hits);
 
     gallery.refresh();
-    
+
+
     if (totalHits <= SearchImeg.loadedHits) {
       allContentLoaded = true;
-      notifyInfo();
+      
+      notifyInfo();  
+      
       removeScroll();
+      
+      gallery.refresh();
+
       return;
     }
   });
- 
 }
 
 function createGalleryMarkup(images) {
@@ -167,8 +181,8 @@ function throttle(callee, timeout) {
 }
 
 function addScroll() {
-  window.addEventListener('scroll', throttle(checkPosition, 350));
-  window.addEventListener('resize', throttle(checkPosition, 350));
+  window.addEventListener('scroll', throttle(checkPosition, 250));
+  window.addEventListener('resize', throttle(checkPosition, 250));
 }
 function removeScroll() {
   window.removeEventListener('scroll', checkPosition);
