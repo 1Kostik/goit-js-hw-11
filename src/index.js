@@ -10,6 +10,19 @@ Notify.init({
   width: '450px',
   closeButton: false,
 });
+const callback = entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      updateData();
+    }
+  });
+};
+const options = {
+  rootMargin: '100px',
+};
+const observer = new IntersectionObserver(callback, options);
+const wraper = document.querySelector('.wraper');
+
 const parentGallery = document.querySelector('.gallery');
 
 let gallery = new SimpleLightbox('.gallery a');
@@ -17,23 +30,22 @@ let gallery = new SimpleLightbox('.gallery a');
 const refs = {
   form: document.querySelector('.search-form'),
   input: document.querySelector('.search-form input'),
+  buttonLoadMore: document.querySelector('.load-more'),
 };
-let allContentLoaded = false;
+
 refs.form.addEventListener('submit', onFormSubmit);
 
 const SearchImeg = new SearchFoto();
 
 function onFormSubmit(event) {
   event.preventDefault();
-  gallery.refresh();
 
-  
   SearchImeg.resetLoadedHits();
-  
+
   SearchImeg.resetPage();
-  
+
   clearConteinerImeg();
-  
+
   SearchImeg.query = refs.input.value.trim();
   if (!SearchImeg.query) {
     return;
@@ -50,33 +62,27 @@ function onFormSubmit(event) {
 
     createGalleryMarkup(hits);
 
-    addScroll();
-
-    allContentLoaded = false;
+    observer.observe(wraper);
 
     gallery.refresh();
   });
 }
+
 function updateData() {
-
-  
   SearchImeg.fetchSearch().then(({ hits, totalHits }) => {
-
-    
     SearchImeg.incrementLoadedHits(hits);
-    
+
     createGalleryMarkup(hits);
 
     gallery.refresh();
 
-
     if (totalHits <= SearchImeg.loadedHits) {
-      allContentLoaded = true;
-      
-      notifyInfo();  
-      
-      removeScroll();
-      
+      console.log(SearchImeg.loadedHits);
+      notifyInfo();
+      refs.form.reset();
+      SearchImeg.query = '';
+      observer.unobserve(wraper);
+
       gallery.refresh();
 
       return;
@@ -140,54 +146,6 @@ function clearConteinerImeg() {
   parentGallery.innerHTML = '';
 }
 
-function checkPosition() {
-  // Нам потребуется знать высоту документа и высоту экрана:
-  const height = document.body.offsetHeight;
-  const screenHeight = window.innerHeight;
-
-  // Они могут отличаться: если на странице много контента,
-  // высота документа будет больше высоты экрана (отсюда и скролл).
-
-  // Записываем, сколько пикселей пользователь уже проскроллил:
-  const scrolled = window.scrollY;
-
-  // Обозначим порог, по приближении к которому
-  // будем вызывать какое-то действие.
-  // В нашем случае — четверть экрана до конца страницы:
-  const threshold = height - screenHeight / 4;
-
-  // Отслеживаем, где находится низ экрана относительно страницы:
-  const position = scrolled + screenHeight;
-
-  if (!allContentLoaded && position >= threshold) {
-    // Если мы пересекли полосу-порог, вызываем нужное действие.
-    updateData();
-  }
-}
-
-function throttle(callee, timeout) {
-  let timer = null;
-
-  return function perform(...args) {
-    if (timer) return;
-
-    timer = setTimeout(() => {
-      callee(...args);
-
-      clearTimeout(timer);
-      timer = null;
-    }, timeout);
-  };
-}
-
-function addScroll() {
-  window.addEventListener('scroll', throttle(checkPosition, 250));
-  window.addEventListener('resize', throttle(checkPosition, 250));
-}
-function removeScroll() {
-  window.removeEventListener('scroll', checkPosition);
-  window.removeEventListener('resize', checkPosition);
-}
 function notifySuccess(totalHits) {
   Notify.success(`Hooray! We found ${totalHits} images.`);
 }

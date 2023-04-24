@@ -43,18 +43,6 @@ body {
   display: flex;
   box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.3);
 }
-.load-more {
-  visibility: hidden;
-  border-radius: 5px;
-  padding: 10px;
-  width: 120px;
-  height: 40px;
-  color: #000;
-  background-color: aliceblue;
-  justify-content: center;
-  margin: auto;
-  display: flex;
-}
 .gallery {
   margin-top: 65px;
   flex-wrap: wrap;
