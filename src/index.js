@@ -25,7 +25,10 @@ const wraper = document.querySelector('.wraper');
 
 const parentGallery = document.querySelector('.gallery');
 
-let gallery = new SimpleLightbox('.gallery a');
+let gallery = new SimpleLightbox('.gallery a', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
 const refs = {
   form: document.querySelector('.search-form'),
