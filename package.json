@@ -23,6 +23,7 @@
     "modern-normalize": "^1.1.0",
     "notiflix": "^3.2.6",
     "npm": "^9.6.4",
+    "parcel-transformer-hbs": "^1.0.3",
     "simplelightbox": "^2.13.0"
   },
   "devDependencies": {

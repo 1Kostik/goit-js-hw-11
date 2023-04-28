@@ -3,6 +3,7 @@ import SearchFoto from './fetchSearch';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import cardFotoTpl from './tamplates/card-foto.hbs';
 Notify.init({
   position: 'right-top',
   cssAnimationStyle: 'fade',
@@ -94,55 +95,12 @@ function updateData() {
 }
 
 function createGalleryMarkup(images) {
-  const markup = images
-    .map(
-      ({
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      }) => {
-        return `
-            <div class="photo-card">
-            <a href="${largeImageURL}">
-            <img
-            class="photo-card__img"
-            src="${webformatURL}" 
-            alt="${tags}" 
-            loading="lazy" 
-            width="320"
-            height="212"
-            />
-            </a>
-            <div class="info">
-            <p class="info-item">
-            <b>Likes</b>
-            <span>${likes}</span>
-            </p>
-            <p class="info-item">
-            <b>Views</b>
-            <span>${views}</span>
-            </p>
-            <p class="info-item">
-            <b>Comments</b>
-            <span>${comments}</span>
-            </p>
-            <p class="info-item">
-            <b>Downloads</b>
-           <span>${downloads}</span>
-           </p>
-           </div>
-           </div>
-           `;
-      }
-    )
-    .join('');
+
+  const markup = images.map(cardFotoTpl).join('');    
 
   parentGallery.insertAdjacentHTML('beforeend', markup);
   gallery.refresh();
+  
 }
 
 function clearConteinerImeg() {
